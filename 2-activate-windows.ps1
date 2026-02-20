@@ -1,6 +1,7 @@
+.{
 # ---- CONFIG ----
-$RepoUrl = "https://github.com/rocketpowerinc/rocketstick.git"
-$Branch = "main"
+$RepoUrl    = "https://github.com/rocketpowerinc/rocketstick.git"
+$Branch     = "main"
 $CurrentDir = Get-Location
 $Destination = Join-Path $env:USERPROFILE "RocketStick"
 
@@ -26,27 +27,24 @@ if (Test-Internet) {
 
     Write-Host "Internet detected. Syncing with GitHub..."
 
-    # Trust directory (important for USB / exFAT)
-    git config --global --add safe.directory $Destination 2>$null
-
-    Set-Location $Destination
-
-    if (!(Test-Path ".git")) {
-        git init
-        git remote add origin $RepoUrl
+    if (!(Test-Path (Join-Path $Destination ".git"))) {
+        Write-Host "Cloning repository..."
+        git clone --branch $Branch $RepoUrl $Destination
     }
-
-    git fetch origin
-    git checkout -B $Branch origin/$Branch
-
+    else {
+        Write-Host "Repository exists. Pulling latest changes..."
+        Set-Location $Destination
+        git pull origin $Branch
+        Set-Location $CurrentDir
+    }
 }
 else {
     Write-Host "No internet connection. Skipping git sync."
 }
 
-# ---- STEP 2: Copy files ----
-Write-Host "Copying files to $Destination"
-
-robocopy $CurrentDir $Destination /MIR
+# ---- STEP 2: Mirror Local Files (Optional) ----
+Write-Host "Copying files from current directory to $Destination"
+robocopy $CurrentDir $Destination /MIR /XD ".git"
 
 Write-Host "=== RocketStick Sync Complete ==="
+}
