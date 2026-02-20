@@ -42,7 +42,8 @@ if (!(Test-Path $Destination)) {
 }
 
 # Use robocopy (more reliable than Copy-Item)
-robocopy $CurrentDir $Destination /MIR /XD ".git"
+robocopy $CurrentDir $Destination /MIR
+robocopy $CurrentDir $Destination /MIR
 
 Write-Host "=== RocketStick Sync Complete ==="
 
