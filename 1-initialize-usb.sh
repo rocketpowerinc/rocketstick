@@ -5,7 +5,7 @@
 # ----------------------------------------
 # This script:
 #   1) Verifies git is installed
-#   2) Clones the RocketStick repository
+#   2) Clones the RocketStick repository to pwd
 #   3) Makes all .sh files executable recursively
 # ----------------------------------------
 
