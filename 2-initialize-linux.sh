@@ -4,50 +4,25 @@
 #
 # PURPOSE
 # -------
-# This script ensures that your $HOME/RocketStick directory stays synchronized
-# in a predictable and reliable way.
+# Keeps $HOME/RocketStick synchronized safely and predictably.
 #
 # BEHAVIOR
 # --------
-# 1) If internet connectivity to the Git repository is available:
-#       • If $HOME/RocketStick is NOT a Git repository:
-#             - It will be removed and freshly cloned from GitHub.
-#       • If it IS already a Git repository:
-#             - It will pull the latest changes from the configured branch.
+# ONLINE MODE:
+#   • If DESTINATION is not a git repo → fresh clone
+#   • If it is a git repo → pull latest changes
 #
-# 2) If internet connectivity is NOT available:
-#       • The script switches to OFFLINE MODE.
-#       • It mirrors the current working directory into $HOME/RocketStick
-#         using rsync.
-#       • Files deleted locally are also deleted in the destination.
-#       • The .git directory is preserved (not overwritten).
+# OFFLINE MODE:
+#   • Mirrors CURRENT_DIR into DESTINATION using rsync
+#   • Preserves .git directory
+#   • Deletes removed files
 #
-# DESIGN GOALS
-# ------------
-# • Safe repeated execution (idempotent)
-# • Works across most Linux distributions
-# • No directory state pollution (uses git -C)
-# • Strict error handling
-# • Minimal assumptions about environment
+# POST-SYNC:
+#   • Ensures all .sh files inside DESTINATION are executable
 #
-# REQUIREMENTS
-# ------------
+# REQUIREMENTS:
 #   git
 #   rsync
-#
-# CONFIGURATION
-# -------------
-#   REPO_URL   - Git repository to sync from when online
-#   BRANCH     - Branch to track
-#   DESTINATION - Target directory (defaults to $HOME/RocketStick)
-#
-# EXIT BEHAVIOR
-# -------------
-# Script exits immediately if:
-#   • A required dependency is missing
-#   • A command fails
-#   • An undefined variable is used
-#
 ###############################################################################
 
 set -euo pipefail
@@ -60,23 +35,32 @@ DESTINATION="$HOME/RocketStick"
 
 ###############################################################################
 # FUNCTION: require_command
-# Checks if a required command exists in PATH.
 ###############################################################################
 require_command() {
     if ! command -v "$1" >/dev/null 2>&1; then
         echo "[ERROR] Required command '$1' is not installed."
-        echo "Install it using your system package manager and try again."
         exit 1
     fi
 }
 
 ###############################################################################
 # FUNCTION: check_internet
-# Tests connectivity to the Git repository directly.
-# This avoids unreliable ICMP/ping-based detection.
 ###############################################################################
 check_internet() {
     git ls-remote "$REPO_URL" &>/dev/null
+}
+
+###############################################################################
+# FUNCTION: ensure_executables
+###############################################################################
+ensure_executables() {
+    echo "[↻] Ensuring all .sh files are executable..."
+    if [ -d "$DESTINATION" ]; then
+        find "$DESTINATION" -type f -name "*.sh" -exec chmod +x {} \;
+        echo "[✓] Shell script permissions verified."
+    else
+        echo "[!] Destination directory missing. Skipping permission fix."
+    fi
 }
 
 ###############################################################################
@@ -95,7 +79,6 @@ echo
 ###############################################################################
 echo "=== RocketStick Sync Starting ==="
 
-# Ensure destination directory exists
 mkdir -p "$DESTINATION"
 
 if check_internet; then
@@ -103,7 +86,8 @@ if check_internet; then
 
     if [ -d "$DESTINATION/.git" ]; then
         echo "[↻] Existing repository detected. Pulling latest changes..."
-        git -C "$DESTINATION" pull origin "$BRANCH"
+        git -C "$DESTINATION" fetch origin "$BRANCH"
+        git -C "$DESTINATION" reset --hard "origin/$BRANCH"
     else
         echo "[+] No repository found. Performing fresh clone..."
         rm -rf "$DESTINATION"
@@ -117,6 +101,11 @@ else
         --exclude=".git" \
         "$CURRENT_DIR/" "$DESTINATION/"
 fi
+
+###############################################################################
+# POST-SYNC FIXES
+###############################################################################
+ensure_executables
 
 echo
 echo "=== RocketStick Sync Complete ==="
