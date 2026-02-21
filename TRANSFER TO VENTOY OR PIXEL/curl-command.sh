@@ -1,1 +1,0 @@
-curl -fsSL "https://raw.githubusercontent.com/rocketpowerinc/rocketstick/refs/heads/main/TRANSFER%20TO%20VENTOY%20OR%20PIXEL/initialize.sh" | bash

@@ -1,0 +1,1 @@
+curl -fsSL "https://raw.githubusercontent.com/rocketpowerinc/rocketstick/refs/heads/main/copy2usb/initialize-go-pwr/initialize.sh" | bash
