@@ -96,6 +96,7 @@ if check_internet; then
 else
     echo "[↻] Offline mode detected."
     echo "[↻] Mirroring local directory into $DESTINATION..."
+    echo "[↻] Git Pull will not work"
 
     rsync -av --delete \
         --exclude=".git" \
