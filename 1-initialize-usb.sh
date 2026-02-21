@@ -3,9 +3,10 @@
 # ----------------------------------------
 # Clone RocketStick (PROS Robotics)
 # ----------------------------------------
-# This script clones the rocketstick repo
-# into the current directory and handles
-# simple error checking.
+# This script:
+#   1) Verifies git is installed
+#   2) Clones the RocketStick repository
+#   3) Makes all .sh files executable recursively
 # ----------------------------------------
 
 set -euo pipefail
@@ -45,5 +46,9 @@ else
     echo "❌ Clone failed."
     exit 1
 fi
+
+# Make all .sh files executable recursively
+echo "🔧 Making all .sh files executable..."
+find "$TARGET_DIR" -type f -name "*.sh" -exec chmod +x {} \;
 
 echo "🚀 Done!"
