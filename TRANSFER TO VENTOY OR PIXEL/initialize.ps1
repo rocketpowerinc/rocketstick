@@ -43,7 +43,7 @@ This script:
 
   # ---- Clone the repository ----
   Write-Host "🔁 Cloning..."
-  git clone $RepoUrl $TargetDir
+  git clone --depth 1 $RepoUrl $TargetDir
 
   # ---- Confirm success ----
   if (Test-Path $FullPath) {

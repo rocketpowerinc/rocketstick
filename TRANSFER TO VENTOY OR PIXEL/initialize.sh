@@ -37,7 +37,7 @@ fi
 
 # Clone the repo
 echo "🔁 Cloning..."
-git clone "$REPO_URL" "$TARGET_DIR"
+git clone --depth 1 "$REPO_URL" "$TARGET_DIR"
 
 # Confirm success
 if [ -d "$TARGET_DIR" ]; then
