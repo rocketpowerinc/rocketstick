@@ -14,7 +14,7 @@ if ! grep -q 'export PATH="$HOME/go/bin:$PATH"' "$HOME/.bashrc"; then
 fi
 
 # Install required packages
-sudo pacman -S --noconfirm git github-cli jq make bat tmux curl wget glow gum
+sudo pacman -S --noconfirm git github-cli jq make bat tmux curl wget glow gum gnome-terminal
 
 # Install go-pwr
 go install -v github.com/rocketpowerinc/go-pwr/cmd/go-pwr@latest
